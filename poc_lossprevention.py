@@ -321,6 +321,9 @@ def main():
         except cv2.error:
             pass
 
+        # 二维码成功解码 -> 视为扫码成功
+        scan_success = qr_found
+
         # --- 状态机 ---
         present = fg_ratio > FG_AREA_RATIO_ENTER
         absent = fg_ratio < FG_AREA_RATIO_EXIT
@@ -333,7 +336,7 @@ def main():
                 exit_count = 0
 
         elif state in ("PRESENT", "SCANNED"):
-            if qr_found:
+            if scan_success:
                 scanned = True
                 state = "SCANNED"
             exit_count = exit_count + 1 if absent else 0
@@ -381,7 +384,8 @@ def main():
                 num_hands = 0
 
         # 状态栏
-        bar = f"STATE:{state}  fg:{fg_ratio:.2f}  scanned:{scanned}  hands:{num_hands}"
+        bar = (f"STATE:{state}  fg:{fg_ratio:.2f}  scanned:{scanned}"
+               f"  hands:{num_hands}")
         cv2.putText(frame, bar, (10, 25),
                     cv2.FONT_HERSHEY_SIMPLEX, 0.6, (255, 255, 0), 2)
         if last_qr_text:
