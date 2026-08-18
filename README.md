@@ -11,6 +11,28 @@
 - `IDLE -> PRESENT -> SCANNED/ALARM` 状态机
 - macOS 蜂鸣声与语音告警
 
+## 状态流程
+
+```mermaid
+stateDiagram-v2
+    [*] --> IDLE
+    IDLE --> PRESENT: ROI 连续检测到物品
+    PRESENT --> SCANNED: 检测到二维码
+    PRESENT --> ALARM: 未扫码即移出
+    SCANNED --> IDLE: 商品正常移出
+    ALARM --> IDLE: 报警完成 / ROI 清空
+```
+
+```mermaid
+flowchart LR
+    A[摄像头] --> B[ROI 前景占位检测]
+    A --> C[MediaPipe 手部关键点]
+    A --> D[OpenCV 二维码检测]
+    B --> E[防损状态机]
+    D --> E
+    E --> F[声音 / 语音告警]
+```
+
 ## 环境
 
 - Python 3.9+
@@ -39,4 +61,3 @@ uv run python poc_lossprevention.py
 ## 参数与限制
 
 摄像头索引、前景面积阈值、进入/移出连续帧数和报警冷却时间位于 `poc_lossprevention.py` 顶部，更换现场后应重新标定。该项目是验证流程的 POC，默认假设 ROI 一次只有一件商品，不应直接作为生产级防损系统。
-
